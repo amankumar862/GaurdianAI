@@ -1,0 +1,104 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- Global Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Role lookup
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    // --- Global Safety Net ---
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Reports Collection ---
+    function isValidReport(data) {
+      let requiredFields = ['title', 'type', 'riskScore', 'reportedBy', 'createdAt', 'explanation'];
+      return data.keys().hasAll(requiredFields)
+        && data.keys().size() <= 8
+        && data.title is string && data.title.size() <= 200
+        && data.type is string && data.type in ['internship', 'scholarship', 'hackathon', 'phishing', 'other']
+        && data.riskScore is number && data.riskScore >= 0 && data.riskScore <= 100
+        && data.reportedBy is string && data.reportedBy == request.auth.uid
+        && data.explanation is string && data.explanation.size() <= 2000
+        && data.createdAt == request.time
+        && (!data.keys().hasAny(['status']) || (data.status is string && data.status in ['pending', 'verified', 'flagged']));
+    }
+
+    match /reports/{reportId} {
+      allow get: if isValidId(reportId);
+      allow list: if true;
+
+      allow create: if isVerifiedUser() 
+                    && isValidId(reportId)
+                    && isValidReport(incoming());
+      
+      allow update: if (
+        isVerifiedUser() && isValidId(reportId) && (
+          isAdmin() || false 
+        )
+      );
+
+      allow delete: if isAdmin();
+    }
+
+    // --- Users Collection ---
+    function isValidUser(data) {
+      let requiredFields = ['email'];
+      return data.keys().hasAll(requiredFields)
+        && data.keys().size() <= 6
+        && data.email is string && data.email.size() <= 256
+        && (!data.keys().hasAny(['displayName']) || (data.displayName is string && data.displayName.size() <= 100))
+        && (!data.keys().hasAny(['photoURL']) || (data.photoURL is string && data.photoURL.size() <= 1000))
+        && (!data.keys().hasAny(['isAdmin']) || data.isAdmin == false);
+    }
+
+    match /users/{userId} {
+      allow read: if isVerifiedUser() && (isOwner(userId) || isAdmin());
+      
+      allow create: if isVerifiedUser() 
+                    && isOwner(userId)
+                    && isValidUser(incoming());
+      
+      allow update: if isVerifiedUser() 
+                    && isOwner(userId)
+                    && isValidUser(incoming())
+                    && incoming().email == existing().email
+                    && (!incoming().keys().hasAny(['isAdmin']) || incoming().isAdmin == existing().isAdmin);
+      
+      allow delete: if isAdmin();
+    }
+
+    // --- Admin Collection ---
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+  }
+}

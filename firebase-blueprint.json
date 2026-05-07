@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "ScamReport": {
+      "title": "Scam Report",
+      "description": "A report of a potential scam submitted by a student.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "type": { "type": "string", "enum": ["internship", "scholarship", "hackathon", "phishing", "other"] },
+        "riskScore": { "type": "number" },
+        "explanation": { "type": "string" },
+        "reportedBy": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "verified", "flagged"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "type", "riskScore", "reportedBy", "createdAt"]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Information about a student user.",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "isAdmin": { "type": "boolean" }
+      },
+      "required": ["email"]
+    }
+  },
+  "firestore": {
+    "reports": {
+      "schema": "ScamReport",
+      "description": "Collection of community-reported scams."
+    },
+    "users": {
+        "schema": "UserProfile",
+        "description": "User account information."
+    }
+  }
+}

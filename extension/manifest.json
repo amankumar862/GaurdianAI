@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "AI Phishing Detector",
+  "version": "2.0",
+  "description": "Modular AI Threat Scanner",
+
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "notifications",
+    "scripting",
+    "storage"
+  ],
+
+  "icons": {
+    "16": "icons/warning.jpg",
+    "48": "icons/warning.jpg",
+    "128": "icons/warning.jpg"
+  },
+
+  "host_permissions": [
+    "<all_urls>"
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "GuardianAI: Student Forensic Shield",
+  "description": "AI-powered real-time phishing, scam, and fake opportunity detection with Real-Time Lens HUD Mirroring for external apps like WhatsApp.",
+  "requestFramePermissions": [
+    "camera",
+    "display-capture"
+  ],
+  "majorCapabilities": [
+    "AI Scam Detection",
+    "Screenshot OCR Analysis",
+    "Fake Internship Validator",
+    "Explainable AI Reasoning"
+  ]
+}
