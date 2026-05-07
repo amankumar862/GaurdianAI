@@ -310,16 +310,3 @@ Possible contribution areas:
 * Firebase optimization
 * Threat detection logic
 
----
-
-# License
-
-MIT License
-
----
-
-# Authors
-
-GuardianAI Team
-
-AI-powered Student Cybersecurity Protection Platform
