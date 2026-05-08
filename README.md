@@ -13,7 +13,7 @@ It combines:
 * Explainable AI threat reasoning
 
 ---
-![Dashboard]("images\Screenshot 2026-05-08 064217.png")
+![Dashboard]("images/Screenshot 2026-05-08 064217.png")
 
 # Features
 
